@@ -32,10 +32,12 @@ warnings.filterwarnings("ignore")
 MODEL_DIR = os.environ.get("MODEL_DIR", "model_outputs")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "granite4.1:3b")
 
+ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+
 app = FastAPI(title="Credit Risk Prediction API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
