@@ -1,0 +1,21 @@
+[project]
+name = "credit-risk-backend"
+version = "0.1.0"
+description = "Credit risk prediction API"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "joblib>=1.4",
+    "shap>=0.46",
+    "ollama>=0.4",
+    "lightgbm>=4.5",
+    "catboost>=1.2",
+    "xgboost>=2.1",
+]
+
+[project.scripts]
+serve = "uvicorn app:app --reload --port 8000"

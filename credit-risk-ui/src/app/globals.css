@@ -1,0 +1,245 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #EDF0F5;
+  --surface: #FFFFFF;
+  --surface-2: #E8EBF0;
+  --surface-3: #E0E4EA;
+  --border: #E5E7EB;
+  --border-strong: #D1D5DB;
+  --text: #1F2937;
+  --text-muted: #6B7280;
+  --text-dim: #9CA3AF;
+  --navy: #153E75;
+  --navy-light: #1E5AA3;
+  --accent-blue: #2563EB;
+  --accent-blue-light: #DBEAFE;
+  --gold: #C89B3C;
+  --gold-light: #FEF3C7;
+  --gold-dark: #A67C2A;
+  --success: #16A34A;
+  --success-light: #DCFCE7;
+  --success-dim: #BBF7D0;
+  --warning: #F59E0B;
+  --warning-light: #FEF9C3;
+  --error: #DC2626;
+  --error-light: #FEE2E2;
+  --error-dim: #FECACA;
+
+  --font-display: var(--font-inter);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-dim: var(--text-dim);
+  --color-navy: var(--navy);
+  --color-navy-light: var(--navy-light);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-blue-light: var(--accent-blue-light);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --color-success: var(--success);
+  --color-success-light: var(--success-light);
+  --color-success-dim: var(--success-dim);
+  --color-warning: var(--warning);
+  --color-warning-light: var(--warning-light);
+  --color-error: var(--error);
+  --color-error-light: var(--error-light);
+  --color-error-dim: var(--error-dim);
+  --color-accent: var(--gold);
+  --color-accent-strong: var(--gold-dark);
+  --color-accent-ink: #fffdf5;
+  --color-approve: var(--success);
+  --color-approve-dim: var(--success-light);
+  --color-reject: var(--error);
+  --color-reject-dim: var(--error-light);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.font-display { letter-spacing: -0.01em; }
+.font-mono { font-feature-settings: "tnum" 1; }
+
+/* --- Container --- */
+.page-container {
+  width: 100%;
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+@media (min-width: 768px) {
+  .page-container { padding-left: 24px; padding-right: 24px; }
+}
+@media (min-width: 1024px) {
+  .page-container { padding-left: 32px; padding-right: 32px; }
+}
+@media (min-width: 1600px) {
+  .page-container { padding-left: 40px; padding-right: 40px; }
+}
+
+/* --- Animated skeleton loading --- */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* --- Progress bar color zones --- */
+.progress-zone-red { background: var(--error); }
+.progress-zone-orange { background: var(--warning); }
+.progress-zone-green { background: var(--success); }
+
+/* --- Card hover elevation --- */
+.card-hover {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-hover:hover {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* --- Card base (shared by all cards) --- */
+.card-base {
+  border-radius: 0.75rem; /* 12px */
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+}
+@media (max-width: 767px) {
+  .card-base { padding: 16px; }
+}
+
+/* --- Focus ring --- */
+:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+input, select, button { font-family: inherit; }
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* --- Fade in --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* --- Print styles for PDF export --- */
+@media print {
+  @page {
+    margin: 14mm;
+    size: A4;
+  }
+  body {
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-size: 11pt;
+  }
+  .no-print {
+    display: none !important;
+  }
+
+  /* Unstack grid layouts — force single column */
+  [class*="grid-cols-"] {
+    display: block !important;
+  }
+  [class*="grid-cols-"] > * {
+    width: 100% !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Unstick sidebars */
+  [class*="sticky"] {
+    position: static !important;
+  }
+
+  /* Clean cards */
+  .rounded-xl,
+  .rounded-lg {
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  /* Muted text readable */
+  .text-text-muted { color: #6B7280 !important; }
+  .text-text-dim { color: #9CA3AF !important; }
+
+  /* Preserve decision colors */
+  .bg-success-dim { background: #DCFCE7 !important; }
+  .bg-error-dim { background: #FEE2E2 !important; }
+  .text-success { color: #16A34A !important; }
+  .text-error { color: #DC2626 !important; }
+  .text-navy { color: #153E75 !important; }
+
+  /* Remove animations */
+  .animate-fade-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Reset max-width */
+  .page-container { max-width: 100% !important; padding: 0 !important; }
+
+  /* Headings */
+  h1 { font-size: 22pt !important; margin-bottom: 4pt !important; }
+  h2 { font-size: 14pt !important; margin-bottom: 4pt !important; }
+  h3 { font-size: 12pt !important; margin-bottom: 4pt !important; }
+}
