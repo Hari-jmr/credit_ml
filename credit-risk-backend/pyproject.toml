@@ -2,7 +2,7 @@
 name = "credit-risk-backend"
 version = "0.1.0"
 description = "Credit risk prediction API"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.14"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
@@ -15,6 +15,8 @@ dependencies = [
     "lightgbm>=4.5",
     "catboost>=1.2",
     "xgboost>=2.1",
+    "numba>=0.60",
+    "llvmlite>=0.43",
 ]
 
 [project.scripts]
