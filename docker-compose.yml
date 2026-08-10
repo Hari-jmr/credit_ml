@@ -2,12 +2,12 @@ services:
   backend:
     build: ./credit-risk-backend
     ports:
-      - "5230:8000"
+      - "5230:5230"
     environment:
       - MODEL_DIR=model_outputs
       - OLLAMA_MODEL=granite4.1:3b
       - OLLAMA_HOST=http://192.168.0.166:11434
-      - ALLOWED_ORIGINS=http://localhost:3000,http://192.168.0.166:3535
+      - ALLOWED_ORIGINS=http://localhost:3535,http://192.168.0.166:3535
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
@@ -18,7 +18,7 @@ services:
       args:
         NEXT_PUBLIC_API_URL: http://192.168.0.166:5230
     ports:
-      - "3535:3000"
+      - "3535:3535"
     depends_on:
       - backend
     restart: unless-stopped

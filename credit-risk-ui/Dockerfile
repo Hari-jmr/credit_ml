@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ARG NEXT_PUBLIC_API_URL=http://localhost:5230
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build
 
@@ -16,5 +16,5 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/public ./public
 
-EXPOSE 3000
-CMD ["node", "node_modules/.bin/next", "start", "--port", "3000"]
+EXPOSE 3535
+CMD ["node", "node_modules/.bin/next", "start", "--port", "3535"]

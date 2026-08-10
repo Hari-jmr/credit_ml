@@ -247,3 +247,19 @@ docker compose up -d --build
 | Frontend | 3000 | 3535 |
 
 Logs: `docker compose logs -f`
+
+## Docker (alternative to systemd)
+
+Ollama must run on the host with `OLLAMA_HOST=0.0.0.0`.
+
+```bash
+cp -r /path/to/model_outputs credit-risk-backend/
+docker compose up -d --build
+```
+
+| Service | Port |
+|---|---|
+| Frontend | http://192.168.0.166:3535 |
+| Backend | http://192.168.0.166:5230 |
+
+Logs: `docker compose logs -f`

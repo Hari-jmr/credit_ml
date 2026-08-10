@@ -17,6 +17,6 @@ ENV MODEL_DIR=model_outputs
 ENV OLLAMA_MODEL=granite4.1:3b
 ENV OLLAMA_HOST=host.docker.internal
 
-EXPOSE 8000
+EXPOSE 5230
 
-CMD ["uv", "run", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5230"]
