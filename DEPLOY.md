@@ -128,20 +128,34 @@ npm run build
 
 ## Environment Configuration
 
-### Backend environment variables (optional)
+### Backend environment variables
 
 ```bash
 # /opt/credit-risk-app/credit-risk-backend/.env
+API_PORT=8000
 MODEL_DIR=model_outputs
 OLLAMA_MODEL=granite4.1:3b
+```
+
+Copy from the example:
+
+```bash
+cp credit-risk-backend/.env.example credit-risk-backend/.env
+# Edit if you need different ports
 ```
 
 ### Frontend environment variables
 
 ```bash
-# /opt/credit-risk-app/credit-risk-ui/.env.production
+# /opt/credit-risk-app/credit-risk-ui/.env.local (dev) or .env.production (build)
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
+
+```bash
+cp credit-risk-ui/.env.example credit-risk-ui/.env.local
+```
+
+If the backend runs on a different port or host, update `NEXT_PUBLIC_API_URL` in the frontend `.env.production` **before** running `npm run build`.
 
 ---
 
@@ -160,11 +174,10 @@ Requires=ollama.service
 Type=simple
 User=root
 WorkingDirectory=/opt/credit-risk-app/credit-risk-backend
-ExecStart=/root/.local/bin/uv run uvicorn app:app --host 127.0.0.1 --port 8000 --workers 2
+EnvironmentFile=/opt/credit-risk-app/credit-risk-backend/.env
+ExecStart=/root/.local/bin/uv run uvicorn app:app --host 127.0.0.1 --port ${API_PORT} --workers 2
 Restart=always
 RestartSec=5
-Environment="MODEL_DIR=model_outputs"
-Environment="OLLAMA_MODEL=granite4.1:3b"
 
 [Install]
 WantedBy=multi-user.target
@@ -183,7 +196,8 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/opt/credit-risk-app/credit-risk-ui
-ExecStart=/usr/bin/node /opt/credit-risk-app/credit-risk-ui/node_modules/.bin/next start --port 3000
+EnvironmentFile=/opt/credit-risk-app/credit-risk-ui/.env.local
+ExecStart=/usr/bin/node /opt/credit-risk-app/credit-risk-ui/node_modules/.bin/next start --port ${PORT:-3000}
 Restart=always
 RestartSec=5
 Environment="NODE_ENV=production"
@@ -192,6 +206,8 @@ Environment="NODE_ENV=production"
 WantedBy=multi-user.target
 EOF
 ```
+
+> **Port difference**: if backend runs on a different port, update `NEXT_PUBLIC_API_URL` in `.env.production` and **rebuild the frontend** (`npm run build`) before starting.
 
 ### Start services
 

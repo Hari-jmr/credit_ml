@@ -18,4 +18,4 @@ dependencies = [
 ]
 
 [project.scripts]
-serve = "uvicorn app:app --reload --port 8000"
+serve = "uvicorn app:app --reload --host 0.0.0.0 --port ${API_PORT:-8000}"
