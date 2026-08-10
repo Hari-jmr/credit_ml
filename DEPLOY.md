@@ -229,3 +229,21 @@ sudo journalctl -u ollama -f
 | Frontend 500 | Run `npm run build` first. `NEXT_PUBLIC_API_URL` correct? |
 | Port already in use | Edit `.env` files, restart services |
 | Nginx 502 | Backend/frontend services running? Check `systemctl status` |
+
+---
+
+## Docker (alternative to systemd)
+
+Ollama must run on the host. Update the server IP in `docker-compose.yml`.
+
+```bash
+cp -r /path/to/model_outputs credit-risk-backend/
+docker compose up -d --build
+```
+
+| Service | Container Port | Host Port |
+|---|---|---|
+| Backend | 8000 | 5230 |
+| Frontend | 3000 | 3535 |
+
+Logs: `docker compose logs -f`
