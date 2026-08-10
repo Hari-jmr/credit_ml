@@ -87,7 +87,7 @@ ollama list
 cd /opt
 sudo mkdir -p credit-risk-app
 sudo chown $USER:$USER credit-risk-app
-git clone <your-repo-url> /opt/credit-risk-app
+git clone https://github.com/Hari-jmr/credit_ml.git /opt/credit-risk-app
 cd /opt/credit-risk-app
 ```
 
