@@ -13,9 +13,9 @@ export function ExplanationPanel({ explanation, modelName }: { explanation: stri
         </div>
       </div>
 
-      <p className="text-[14px] leading-relaxed text-text">
+      <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-text">
         {explanation}
-      </p>
+      </div>
     </div>
   );
 }

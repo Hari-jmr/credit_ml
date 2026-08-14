@@ -251,11 +251,11 @@ def explain_with_template(decision: str, prob: float, drivers: pd.DataFrame, bas
 
     # Decision summary
     if decision == "APPROVED":
-        lines.append(f"This application has been **approved** with a credit risk probability of **{prob_pct:.1f}%**.")
+        lines.append(f"This application has been approved with a credit risk probability of {prob_pct:.1f}%.")
         lines.append(f"This means the model estimates a {prob_pct:.1f}% likelihood that the applicant will repay the loan successfully.")
         lines.append(f"For context, the baseline approval rate across all applications is approximately {base_pct:.1f}%.")
     else:
-        lines.append(f"This application has been **rejected** with a credit risk probability of **{prob_pct:.1f}%**.")
+        lines.append(f"This application has been rejected with a credit risk probability of {prob_pct:.1f}%.")
         lines.append(f"This means the model estimates only a {prob_pct:.1f}% likelihood that the applicant will repay the loan successfully.")
         lines.append(f"For context, the baseline approval rate across all applications is approximately {base_pct:.1f}%.")
 
@@ -263,7 +263,7 @@ def explain_with_template(decision: str, prob: float, drivers: pd.DataFrame, bas
 
     # Positive factors
     if len(push_factors):
-        lines.append("**Factors Supporting Approval:**")
+        lines.append("Factors Supporting Approval:")
         lines.append("")
         for _, r in push_factors.iterrows():
             val = "not provided" if pd.isna(r["value"]) else (
@@ -271,12 +271,12 @@ def explain_with_template(decision: str, prob: float, drivers: pd.DataFrame, bas
             )
             strength = "strong" if abs(r["shap"]) > 0.1 else ("moderate" if abs(r["shap"]) > 0.05 else "minor")
             direction = "increasing" if r["shap"] >= 0 else "decreasing"
-            lines.append(f"- **{r['label']}** ({val}): {strength} positive impact, {direction} approval probability by {r['shap']:+.3f}")
+            lines.append(f"• {r['label']} ({val}): {strength} positive impact, {direction} approval probability by {r['shap']:+.3f}")
         lines.append("")
 
     # Negative factors
     if len(pull_factors):
-        lines.append("**Factors Working Against Approval:**")
+        lines.append("Factors Working Against Approval:")
         lines.append("")
         for _, r in pull_factors.iterrows():
             val = "not provided" if pd.isna(r["value"]) else (
@@ -284,11 +284,11 @@ def explain_with_template(decision: str, prob: float, drivers: pd.DataFrame, bas
             )
             strength = "strong" if abs(r["shap"]) > 0.1 else ("moderate" if abs(r["shap"]) > 0.05 else "minor")
             direction = "decreasing" if r["shap"] < 0 else "increasing"
-            lines.append(f"- **{r['label']}** ({val}): {strength} negative impact, {direction} approval probability by {r['shap']:+.3f}")
+            lines.append(f"• {r['label']} ({val}): {strength} negative impact, {direction} approval probability by {r['shap']:+.3f}")
         lines.append("")
 
     # Threshold comparison
-    lines.append("**Conclusion:**")
+    lines.append("Conclusion:")
     lines.append("")
     if prob >= THRESHOLD:
         lines.append(
