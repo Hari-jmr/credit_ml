@@ -247,65 +247,63 @@ def explain_with_template(decision: str, prob: float, drivers: pd.DataFrame, bas
     prob_pct = prob * 100
     base_pct = base_prob * 100
 
-    paragraphs = []
+    lines = []
 
     # Decision summary
     if decision == "APPROVED":
-        paragraphs.append(
-            f"This application has been **approved** with a credit risk probability of **{prob_pct:.1f}%**. "
-            f"This means the model estimates a {prob_pct:.1f}% likelihood that the applicant will repay the loan successfully. "
-            f"For context, the baseline approval rate across all applications is approximately {base_pct:.1f}%."
-        )
+        lines.append(f"This application has been **approved** with a credit risk probability of **{prob_pct:.1f}%**.")
+        lines.append(f"This means the model estimates a {prob_pct:.1f}% likelihood that the applicant will repay the loan successfully.")
+        lines.append(f"For context, the baseline approval rate across all applications is approximately {base_pct:.1f}%.")
     else:
-        paragraphs.append(
-            f"This application has been **rejected** with a credit risk probability of **{prob_pct:.1f}%**. "
-            f"This means the model estimates only a {prob_pct:.1f}% likelihood that the applicant will repay the loan successfully. "
-            f"For context, the baseline approval rate across all applications is approximately {base_pct:.1f}%."
-        )
+        lines.append(f"This application has been **rejected** with a credit risk probability of **{prob_pct:.1f}%**.")
+        lines.append(f"This means the model estimates only a {prob_pct:.1f}% likelihood that the applicant will repay the loan successfully.")
+        lines.append(f"For context, the baseline approval rate across all applications is approximately {base_pct:.1f}%.")
+
+    lines.append("")
 
     # Positive factors
     if len(push_factors):
-        factor_details = []
+        lines.append("**Factors Supporting Approval:**")
+        lines.append("")
         for _, r in push_factors.iterrows():
             val = "not provided" if pd.isna(r["value"]) else (
                 f"{r['value']:.2f}" if isinstance(r["value"], (int, float, np.number)) else str(r["value"])
             )
             strength = "strong" if abs(r["shap"]) > 0.1 else ("moderate" if abs(r["shap"]) > 0.05 else "minor")
-            factor_details.append(
-                f"The **{r['label']}** ({val}) has a {strength} positive impact, "
-                f"increasing the approval probability by {r['shap']:+.3f}"
-            )
-        paragraphs.append("**Factors Supporting Approval:** " + "; ".join(factor_details) + ".")
+            direction = "increasing" if r["shap"] >= 0 else "decreasing"
+            lines.append(f"- **{r['label']}** ({val}): {strength} positive impact, {direction} approval probability by {r['shap']:+.3f}")
+        lines.append("")
 
     # Negative factors
     if len(pull_factors):
-        factor_details = []
+        lines.append("**Factors Working Against Approval:**")
+        lines.append("")
         for _, r in pull_factors.iterrows():
             val = "not provided" if pd.isna(r["value"]) else (
                 f"{r['value']:.2f}" if isinstance(r["value"], (int, float, np.number)) else str(r["value"])
             )
             strength = "strong" if abs(r["shap"]) > 0.1 else ("moderate" if abs(r["shap"]) > 0.05 else "minor")
-            factor_details.append(
-                f"The **{r['label']}** ({val}) has a {strength} negative impact, "
-                f"decreasing the approval probability by {r['shap']:+.3f}"
-            )
-        paragraphs.append("**Factors Working Against Approval:** " + "; ".join(factor_details) + ".")
+            direction = "decreasing" if r["shap"] < 0 else "increasing"
+            lines.append(f"- **{r['label']}** ({val}): {strength} negative impact, {direction} approval probability by {r['shap']:+.3f}")
+        lines.append("")
 
     # Threshold comparison
+    lines.append("**Conclusion:**")
+    lines.append("")
     if prob >= THRESHOLD:
-        paragraphs.append(
-            f"**Conclusion:** The combined positive factors outweigh the negative ones, "
+        lines.append(
+            f"The combined positive factors outweigh the negative ones, "
             f"pushing the final score above the decision threshold of {THRESHOLD:.0%}. "
             f"This application meets the model's criteria for approval."
         )
     else:
-        paragraphs.append(
-            f"**Conclusion:** The negative factors outweigh the positive ones, "
+        lines.append(
+            f"The negative factors outweigh the positive ones, "
             f"keeping the final score below the decision threshold of {THRESHOLD:.0%}. "
             f"This application does not meet the model's criteria for approval at this time."
         )
 
-    return "\n\n".join(paragraphs)
+    return "\n".join(lines)
 
 
 def explain_with_llm(decision: str, prob: float, drivers: pd.DataFrame) -> str:
