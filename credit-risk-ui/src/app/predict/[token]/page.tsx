@@ -92,7 +92,27 @@ export default function SessionPage({ params }: { params: Promise<{ token: strin
         const data = await res.json();
         if (data.returnUrl) setReturnUrl(data.returnUrl);
         if (data.application) {
-          setForm((prev) => ({ ...prev, ...data.application }));
+          const converted: ApplicationPayload = {
+            ...data.application,
+            LOAN_AMOUNT: Number(data.application.LOAN_AMOUNT) || 0,
+            TENURE: Number(data.application.TENURE) || 0,
+            INTEREST_RATE: Number(data.application.INTEREST_RATE) || 0,
+            EMI: Number(data.application.EMI) || 0,
+            total_exposure: Number(data.application.total_exposure) || 0,
+            ANNUAL_COMMITMENT: Number(data.application.ANNUAL_COMMITMENT) || 0,
+            EQUITY_CONTRIBUTION: Number(data.application.EQUITY_CONTRIBUTION) || 0,
+            application_score: Number(data.application.application_score) || 0,
+            KSCORE: Number(data.application.KSCORE) || 0,
+            DSR: Number(data.application.DSR) || 0,
+            annual_dsr: Number(data.application.annual_dsr) || 0,
+            UMI: Number(data.application.UMI) || 0,
+            lvr: Number(data.application.lvr) || 0,
+            max_salary: Number(data.application.max_salary) || 0,
+            max_benefits: Number(data.application.max_benefits) || 0,
+            emp_count: Number(data.application.emp_count) || 0,
+            emp_sector: Number(data.application.emp_sector) || 0,
+          };
+          setForm((prev) => ({ ...prev, ...converted }));
         }
         setStatus("ready");
       } catch (e) {

@@ -50,7 +50,7 @@ export function NumberField({ label, hint, value, onChange, step = 1, min, suffi
           min={min}
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value === "" ? null : parseFloat(e.target.value))}
-          className={`${inputBase} ${suffix ? "pr-16" : ""} font-mono`}
+          className={`${inputBase} ${suffix ? "pr-16" : ""}`}
           placeholder="0"
         />
         {suffix && (
