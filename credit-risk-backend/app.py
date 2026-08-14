@@ -239,47 +239,73 @@ def shap_drivers(X: pd.DataFrame, k: int = 6) -> tuple[pd.DataFrame, float, int,
 
 
 def explain_with_template(decision: str, prob: float, drivers: pd.DataFrame, base_prob: float) -> str:
-    """Generate a plain-language explanation from SHAP drivers without an LLM (instant)."""
-    top = drivers.head(3)
+    """Generate a detailed plain-language explanation from SHAP drivers without an LLM (instant)."""
+    top = drivers.head(5)
     push_factors = top[top["shap"] >= 0]
     pull_factors = top[top["shap"] < 0]
 
-    sentences = []
     prob_pct = prob * 100
-    sentences.append(
-        f"The model {decision.lower()} this application with a {prob_pct:.0f}% probability of approval."
-    )
+    base_pct = base_prob * 100
 
+    paragraphs = []
+
+    # Decision summary
+    if decision == "APPROVED":
+        paragraphs.append(
+            f"This application has been **approved** with a credit risk probability of **{prob_pct:.1f}%**. "
+            f"This means the model estimates a {prob_pct:.1f}% likelihood that the applicant will repay the loan successfully. "
+            f"For context, the baseline approval rate across all applications is approximately {base_pct:.1f}%."
+        )
+    else:
+        paragraphs.append(
+            f"This application has been **rejected** with a credit risk probability of **{prob_pct:.1f}%**. "
+            f"This means the model estimates only a {prob_pct:.1f}% likelihood that the applicant will repay the loan successfully. "
+            f"For context, the baseline approval rate across all applications is approximately {base_pct:.1f}%."
+        )
+
+    # Positive factors
     if len(push_factors):
-        items = []
+        factor_details = []
         for _, r in push_factors.iterrows():
             val = "not provided" if pd.isna(r["value"]) else (
                 f"{r['value']:.2f}" if isinstance(r["value"], (int, float, np.number)) else str(r["value"])
             )
-            items.append(f"{r['label']} ({val})")
-        sentences.append(f"Factors supporting approval: {', '.join(items)}.")
+            strength = "strong" if abs(r["shap"]) > 0.1 else ("moderate" if abs(r["shap"]) > 0.05 else "minor")
+            factor_details.append(
+                f"The **{r['label']}** ({val}) has a {strength} positive impact, "
+                f"increasing the approval probability by {r['shap']:+.3f}"
+            )
+        paragraphs.append("**Factors Supporting Approval:** " + "; ".join(factor_details) + ".")
 
+    # Negative factors
     if len(pull_factors):
-        items = []
+        factor_details = []
         for _, r in pull_factors.iterrows():
             val = "not provided" if pd.isna(r["value"]) else (
                 f"{r['value']:.2f}" if isinstance(r["value"], (int, float, np.number)) else str(r["value"])
             )
-            items.append(f"{r['label']} ({val})")
-        sentences.append(f"Factors working against approval: {', '.join(items)}.")
+            strength = "strong" if abs(r["shap"]) > 0.1 else ("moderate" if abs(r["shap"]) > 0.05 else "minor")
+            factor_details.append(
+                f"The **{r['label']}** ({val}) has a {strength} negative impact, "
+                f"decreasing the approval probability by {r['shap']:+.3f}"
+            )
+        paragraphs.append("**Factors Working Against Approval:** " + "; ".join(factor_details) + ".")
 
+    # Threshold comparison
     if prob >= THRESHOLD:
-        sentences.append(
-            f"The combined positive factors outweigh the negative ones, "
-            f"pushing the score above the {THRESHOLD:.0%} threshold."
+        paragraphs.append(
+            f"**Conclusion:** The combined positive factors outweigh the negative ones, "
+            f"pushing the final score above the decision threshold of {THRESHOLD:.0%}. "
+            f"This application meets the model's criteria for approval."
         )
     else:
-        sentences.append(
-            f"The negative factors outweigh the positive ones, "
-            f"keeping the score below the {THRESHOLD:.0%} threshold."
+        paragraphs.append(
+            f"**Conclusion:** The negative factors outweigh the positive ones, "
+            f"keeping the final score below the decision threshold of {THRESHOLD:.0%}. "
+            f"This application does not meet the model's criteria for approval at this time."
         )
 
-    return " ".join(sentences)
+    return "\n\n".join(paragraphs)
 
 
 def explain_with_llm(decision: str, prob: float, drivers: pd.DataFrame) -> str:
