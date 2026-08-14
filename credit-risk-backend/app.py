@@ -303,7 +303,7 @@ def explain_with_template(decision: str, prob: float, drivers: pd.DataFrame, bas
             f"This application does not meet the model's criteria for approval at this time."
         )
 
-    return "\n".join(lines)
+    return "\n\n".join(lines)
 
 
 def explain_with_llm(decision: str, prob: float, drivers: pd.DataFrame) -> str:
