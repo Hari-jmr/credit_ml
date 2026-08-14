@@ -20,3 +20,8 @@ credit-risk-backend/model_outputs/
 
 # Generated PDFs
 *.pdf
+
+# Environment files
+.env
+.env.*
+!.env.example
