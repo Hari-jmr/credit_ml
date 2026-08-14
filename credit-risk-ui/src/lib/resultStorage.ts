@@ -5,3 +5,4 @@
 // sessionStorage is available and appropriate here.
 export const RESULT_STORAGE_KEY = "credit-risk:last-result";
 export const APPLICATION_STORAGE_KEY = "credit-risk:last-application";
+export const RETURN_URL_KEY = "credit-risk:return-url";

@@ -15,7 +15,9 @@ Requires model_outputs/ (from credit_risk_ML_v3.ipynb) in the same directory as 
 import json
 import os
 import re
+import uuid
 import warnings
+from datetime import datetime, timedelta
 from typing import Optional, Union
 
 import joblib
@@ -31,8 +33,9 @@ warnings.filterwarnings("ignore")
 
 MODEL_DIR = os.environ.get("MODEL_DIR", "model_outputs")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "granite4.1:3b")
+USE_LLM = os.environ.get("USE_LLM", "false").lower() == "true"
 
-ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000,http://192.168.0.166:3000").split(",")
 
 app = FastAPI(title="Credit Risk Prediction API")
 app.add_middleware(
@@ -235,6 +238,50 @@ def shap_drivers(X: pd.DataFrame, k: int = 6) -> tuple[pd.DataFrame, float, int,
     return top, base_prob, other_count, rest_shap, coverage
 
 
+def explain_with_template(decision: str, prob: float, drivers: pd.DataFrame, base_prob: float) -> str:
+    """Generate a plain-language explanation from SHAP drivers without an LLM (instant)."""
+    top = drivers.head(3)
+    push_factors = top[top["shap"] >= 0]
+    pull_factors = top[top["shap"] < 0]
+
+    sentences = []
+    prob_pct = prob * 100
+    sentences.append(
+        f"The model {decision.lower()} this application with a {prob_pct:.0f}% probability of approval."
+    )
+
+    if len(push_factors):
+        items = []
+        for _, r in push_factors.iterrows():
+            val = "not provided" if pd.isna(r["value"]) else (
+                f"{r['value']:.2f}" if isinstance(r["value"], (int, float, np.number)) else str(r["value"])
+            )
+            items.append(f"{r['label']} ({val})")
+        sentences.append(f"Factors supporting approval: {', '.join(items)}.")
+
+    if len(pull_factors):
+        items = []
+        for _, r in pull_factors.iterrows():
+            val = "not provided" if pd.isna(r["value"]) else (
+                f"{r['value']:.2f}" if isinstance(r["value"], (int, float, np.number)) else str(r["value"])
+            )
+            items.append(f"{r['label']} ({val})")
+        sentences.append(f"Factors working against approval: {', '.join(items)}.")
+
+    if prob >= THRESHOLD:
+        sentences.append(
+            f"The combined positive factors outweigh the negative ones, "
+            f"pushing the score above the {THRESHOLD:.0%} threshold."
+        )
+    else:
+        sentences.append(
+            f"The negative factors outweigh the positive ones, "
+            f"keeping the score below the {THRESHOLD:.0%} threshold."
+        )
+
+    return " ".join(sentences)
+
+
 def explain_with_llm(decision: str, prob: float, drivers: pd.DataFrame) -> str:
     lines = [
         f"Decision: {decision}",
@@ -254,10 +301,21 @@ def explain_with_llm(decision: str, prob: float, drivers: pd.DataFrame) -> str:
     resp = ollama.chat(
         model=OLLAMA_MODEL,
         messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
-        options={"temperature": 0.2, "num_predict": 320, "num_ctx": 4096},
+        options={"temperature": 0.2, "num_predict": 150, "num_ctx": 2048, "num_thread": 1},
     )
     return resp["message"]["content"].strip()
 
+
+SESSIONS: dict[str, dict] = {}
+SESSION_TTL = timedelta(hours=2)
+
+class SessionRequest(BaseModel):
+    returnUrl: str
+    application: Optional[Application] = None
+
+class SessionResponse(BaseModel):
+    token: str
+    url: str
 
 # ---------------------------------------------------------------------------------------------
 # API schema
@@ -336,6 +394,7 @@ def health():
         "threshold": THRESHOLD,
         "threshold_note": THRESHOLD_NOTE,
         "ollama_model": OLLAMA_MODEL,
+        "explanation_mode": "llm" if USE_LLM else "template",
     }
 
 
@@ -347,6 +406,31 @@ def schema():
         "risk_grades": list(RISK_GRADE_MAP.keys()),
         "winsorize_caps": WINSORIZE_CAPS,
     }
+
+
+@app.post("/predict/session", response_model=SessionResponse)
+def create_session(req: SessionRequest):
+    """Create a session token for cross-app redirect. Profitoo calls this to get a URL."""
+    token = str(uuid.uuid4())
+    SESSIONS[token] = {
+        "application": req.application.model_dump() if req.application else None,
+        "returnUrl": req.returnUrl,
+        "createdAt": datetime.now().isoformat(),
+    }
+    base_ui = os.environ.get("UI_BASE_URL", "http://localhost:3000")
+    return SessionResponse(token=token, url=f"{base_ui}/predict/{token}")
+
+
+@app.get("/predict/session/{token}")
+def get_session(token: str):
+    """Retrieve and consume a session token (one-time use)."""
+    session = SESSIONS.pop(token, None)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found or expired")
+    created = datetime.fromisoformat(session["createdAt"])
+    if datetime.now() - created > SESSION_TTL:
+        raise HTTPException(status_code=410, detail="Session expired")
+    return session
 
 
 @app.post("/predict", response_model=PredictResponse)
@@ -361,14 +445,14 @@ def predict(application: Application):
     decision = "APPROVED" if prob >= THRESHOLD else "REJECTED"
     drivers_df, base_prob, other_count, other_shap, coverage_pct = shap_drivers(X, k=10)
 
-    try:
-        explanation = explain_with_llm(decision, prob, drivers_df)
-    except Exception as e:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Prediction succeeded but the local LLM call failed: {e}. "
-            f"Check that Ollama is running and `{OLLAMA_MODEL}` is pulled.",
-        )
+    if USE_LLM:
+        try:
+            explanation = explain_with_llm(decision, prob, drivers_df)
+        except Exception as e:
+            explanation = explain_with_template(decision, prob, drivers_df, base_prob) + \
+                f" [LLM unavailable: {e}. Showing template explanation.]"
+    else:
+        explanation = explain_with_template(decision, prob, drivers_df, base_prob)
 
     drivers = [
         Driver(
