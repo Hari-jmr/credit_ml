@@ -39,6 +39,9 @@ interface NumberFieldProps {
 }
 
 export function NumberField({ label, hint, value, onChange, step = 1, min, suffix }: NumberFieldProps) {
+  // Ensure value is always a proper number without leading zeros
+  const displayValue = value !== null && value !== undefined ? String(value) : "";
+  
   return (
     <label className="flex flex-col gap-1.5">
       <span className={labelBase}>{label}</span>
@@ -48,8 +51,16 @@ export function NumberField({ label, hint, value, onChange, step = 1, min, suffi
           inputMode="decimal"
           step={step}
           min={min}
-          value={value ?? ""}
-          onChange={(e) => onChange(e.target.value === "" ? null : parseFloat(e.target.value))}
+          value={displayValue}
+          onChange={(e) => {
+            const raw = e.target.value;
+            if (raw === "") {
+              onChange(null);
+            } else {
+              const parsed = parseFloat(raw);
+              onChange(isNaN(parsed) ? null : parsed);
+            }
+          }}
           className={`${inputBase} ${suffix ? "pr-16" : ""}`}
           placeholder="0"
         />
