@@ -309,14 +309,6 @@ def explain_with_llm(decision: str, prob: float, drivers: pd.DataFrame) -> str:
 SESSIONS: dict[str, dict] = {}
 SESSION_TTL = timedelta(hours=2)
 
-class SessionRequest(BaseModel):
-    returnUrl: str
-    application: Optional[Application] = None
-
-class SessionResponse(BaseModel):
-    token: str
-    url: str
-
 # ---------------------------------------------------------------------------------------------
 # API schema
 # ---------------------------------------------------------------------------------------------
@@ -350,6 +342,15 @@ class Application(BaseModel):
     emp_contract_type: str
     eligibility: Optional[str] = None
     PRIORITY: Optional[str] = None
+
+
+class SessionRequest(BaseModel):
+    returnUrl: str
+    application: Optional[Application] = None
+
+class SessionResponse(BaseModel):
+    token: str
+    url: str
 
 
 class Driver(BaseModel):
