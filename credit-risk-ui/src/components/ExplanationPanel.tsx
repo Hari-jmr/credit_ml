@@ -1,7 +1,7 @@
 import { ScaleIcon } from "@heroicons/react/24/solid";
 
 export function ExplanationPanel({ explanation, modelName }: { explanation: string; modelName: string }) {
-  const paragraphs = explanation.split("\n\n");
+  const lines = explanation.split("\n");
   
   return (
     <div className="card-base card-hover animate-fade-in">
@@ -15,34 +15,93 @@ export function ExplanationPanel({ explanation, modelName }: { explanation: stri
         </div>
       </div>
 
-      <div className="text-[14px] leading-relaxed text-text">
-        {paragraphs.map((paragraph, i) => {
-          if (paragraph.trim() === "") return null;
+      <div className="font-mono text-[13px] leading-relaxed text-text">
+        {lines.map((line, i) => {
+          // Section headers (all caps with colons or === lines)
+          if (line === "" || line === "=" .repeat(50) || line === "-" .repeat(40)) {
+            return <div key={i} className="h-2" />;
+          }
           
-          // Check if it's a section header
-          if (paragraph.endsWith(":") && !paragraph.includes("•")) {
+          // RESULT line
+          if (line.startsWith("RESULT:")) {
+            const isApproved = line.includes("APPROVED");
             return (
-              <h4 key={i} className="mt-4 mb-2 font-semibold text-navy">
-                {paragraph}
+              <div key={i} className={`text-lg font-bold ${isApproved ? "text-green-600" : "text-red-600"}`}>
+                {line}
+              </div>
+            );
+          }
+          
+          // Section headers
+          if (line === line.toUpperCase() && line.length > 10 && !line.includes(":")) {
+            return (
+              <h4 key={i} className="mt-4 mb-2 font-bold text-navy uppercase tracking-wide">
+                {line}
               </h4>
             );
           }
           
-          // Check if it contains bullet points
-          if (paragraph.includes("•")) {
-            const lines = paragraph.split("\n").filter(l => l.trim());
+          // Probability line
+          if (line.includes("Probability:") || line.includes("threshold:")) {
             return (
-              <ul key={i} className="ml-4 space-y-1">
-                {lines.map((line, j) => (
-                  <li key={j} className="text-text-muted">{line.replace("• ", "")}</li>
-                ))}
-              </ul>
+              <p key={i} className="text-text-muted">
+                {line}
+              </p>
             );
           }
           
+          // Factor lines with + or -
+          if (line.trim().startsWith("+") || line.trim().startsWith("-")) {
+            const isPositive = line.trim().startsWith("+");
+            return (
+              <p key={i} className={`ml-2 ${isPositive ? "text-green-700" : "text-red-700"}`}>
+                {line}
+              </p>
+            );
+          }
+          
+          // Impact lines
+          if (line.includes("INCREASES") || line.includes("DECREASES")) {
+            const isPositive = line.includes("INCREASES");
+            return (
+              <p key={i} className={`ml-4 text-sm ${isPositive ? "text-green-600" : "text-red-600"}`}>
+                {line}
+              </p>
+            );
+          }
+          
+          // Impact level
+          if (line.includes("[Significant") || line.includes("[Moderate") || line.includes("[Minor")) {
+            return (
+              <p key={i} className="ml-4 text-xs text-text-muted italic">
+                {line}
+              </p>
+            );
+          }
+          
+          // Summary section
+          if (line.includes("Baseline probability:") || line.includes("Net factor impact:") || line.includes("Final probability:")) {
+            return (
+              <p key={i} className="ml-2 font-semibold text-navy">
+                {line}
+              </p>
+            );
+          }
+          
+          // DECISION line
+          if (line.startsWith("DECISION:")) {
+            const isApproved = line.includes("APPROVED");
+            return (
+              <div key={i} className={`mt-2 text-lg font-bold ${isApproved ? "text-green-600" : "text-red-600"}`}>
+                {line}
+              </div>
+            );
+          }
+          
+          // Default line
           return (
-            <p key={i} className="mb-2">
-              {paragraph}
+            <p key={i} className="text-text-muted">
+              {line}
             </p>
           );
         })}
