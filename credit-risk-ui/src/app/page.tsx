@@ -52,7 +52,7 @@ const DEFAULTS: ApplicationPayload = {
   emp_contract_type: "Permanent",
 };
 
-type Status = "idle" | "loading" | "error";
+type Status = "idle" | "warming" | "loading" | "error";
 
 export default function Home() {
   const router = useRouter();
@@ -88,7 +88,7 @@ export default function Home() {
   );
 
   async function handlePredict() {
-    setStatus("loading");
+    setStatus("warming");
     setError(null);
     try {
       const res = await predict(form);
@@ -198,10 +198,10 @@ export default function Home() {
 
           <button
             onClick={handlePredict}
-            disabled={status === "loading"}
+            disabled={status === "warming" || status === "loading"}
             className="w-full rounded-xl bg-navy px-6 py-4 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-navy-light hover:shadow-md active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
           >
-            {status === "loading" ? "Analyzing application..." : "Run Credit Assessment"}
+            {status === "warming" ? "Warming up model..." : status === "loading" ? "Analyzing application..." : "Run Credit Assessment"}
           </button>
 
           {status === "error" && error && (

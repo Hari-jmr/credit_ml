@@ -59,25 +59,39 @@ export class ApiError extends Error {
   }
 }
 
-export async function predict(application: ApplicationPayload): Promise<PredictResponse> {
-  const res = await fetch(`${API_URL}/predict`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(application),
-  });
+export async function predict(application: ApplicationPayload, retries = 3): Promise<PredictResponse> {
+  let lastError: Error | null = null;
 
-  if (!res.ok) {
-    let detail = res.statusText;
+  for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const body = await res.json();
-      detail = body.detail ?? detail;
-    } catch {
-      // response wasn't JSON — keep statusText
+      const res = await fetch(`${API_URL}/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(application),
+      });
+
+      if (!res.ok) {
+        let detail = res.statusText;
+        try {
+          const body = await res.json();
+          detail = body.detail ?? detail;
+        } catch {
+          // response wasn't JSON — keep statusText
+        }
+        throw new ApiError(detail, res.status);
+      }
+
+      return res.json();
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < retries) {
+        const delay = 1000 * Math.pow(2, attempt);
+        await new Promise((r) => setTimeout(r, delay));
+      }
     }
-    throw new ApiError(detail, res.status);
   }
 
-  return res.json();
+  throw lastError!;
 }
 
 export interface HealthResponse {
