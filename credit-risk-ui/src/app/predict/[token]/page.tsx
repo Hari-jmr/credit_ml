@@ -52,7 +52,7 @@ const DEFAULTS: ApplicationPayload = {
   emp_contract_type: "Permanent",
 };
 
-type Status = "loading" | "ready" | "error";
+type Status = "idle" | "warming" | "loading" | "error";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export default function SessionPage({ params }: { params: Promise<{ token: string }> }) {
@@ -114,7 +114,7 @@ export default function SessionPage({ params }: { params: Promise<{ token: strin
           };
           setForm((prev) => ({ ...prev, ...converted }));
         }
-        setStatus("ready");
+        setStatus("idle");
       } catch (e) {
         setError(e instanceof Error ? e.message : "Could not load session");
         setStatus("error");
@@ -145,7 +145,7 @@ export default function SessionPage({ params }: { params: Promise<{ token: strin
   );
 
   async function handlePredict() {
-    setStatus("loading");
+    setStatus("warming");
     setError(null);
     try {
       const res = await predict(form);
@@ -156,11 +156,11 @@ export default function SessionPage({ params }: { params: Promise<{ token: strin
     } catch (e) {
       const msg = e instanceof ApiError ? e.message : "Could not reach the prediction service.";
       setError(msg);
-      setStatus("ready");
+      setStatus("idle");
     }
   }
 
-  if (status === "loading") {
+  if (status === "warming" || status === "loading") {
     return (
       <div className="page-container py-32 text-center">
         <p className="text-xl font-bold text-text">Loading session...</p>
@@ -289,10 +289,10 @@ export default function SessionPage({ params }: { params: Promise<{ token: strin
 
           <button
             onClick={handlePredict}
-            disabled={status === "loading"}
+            disabled={status === "warming" || status === "loading"}
             className="w-full rounded-xl bg-navy px-6 py-4 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-navy-light hover:shadow-md active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
           >
-            {status === "loading" ? "Analyzing application..." : "Run Credit Assessment"}
+            {status === "warming" ? "Warming up model..." : status === "loading" ? "Analyzing application..." : "Run Credit Assessment"}
           </button>
 
           {status === "error" && error && (
