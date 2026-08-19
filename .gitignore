@@ -24,4 +24,3 @@ credit-risk-backend/model_outputs/
 # Environment files
 .env
 .env.*
-!.env.example
