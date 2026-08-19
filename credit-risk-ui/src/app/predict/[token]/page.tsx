@@ -52,7 +52,7 @@ const DEFAULTS: ApplicationPayload = {
   emp_contract_type: "Permanent",
 };
 
-type Status = "idle" | "warming" | "loading" | "error";
+type Status = string;
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export default function SessionPage({ params }: { params: Promise<{ token: string }> }) {
@@ -289,12 +289,13 @@ export default function SessionPage({ params }: { params: Promise<{ token: strin
 
           <button
             onClick={handlePredict}
-            className="w-full rounded-xl bg-navy px-6 py-4 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-navy-light hover:shadow-md active:scale-[0.98]"
+            disabled={status === "warming"}
+            className="w-full rounded-xl bg-navy px-6 py-4 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-navy-light hover:shadow-md active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
           >
-            Run Credit Assessment
+            {status === "warming" ? "Warming up model..." : "Run Credit Assessment"}
           </button>
 
-          {status === "error" && error && (
+          {error && (
             <div className="card-base border-error-dim bg-error-light">
               <p className="text-sm font-semibold text-error">Assessment failed</p>
               <p className="mt-1.5 text-[13px] leading-relaxed text-text-muted">{error}</p>
