@@ -160,7 +160,7 @@ export default function SessionPage({ params }: { params: Promise<{ token: strin
     }
   }
 
-  if (status === "warming" || status === "loading") {
+  if (status === "loading") {
     return (
       <div className="page-container py-32 text-center">
         <p className="text-xl font-bold text-text">Loading session...</p>
@@ -289,10 +289,9 @@ export default function SessionPage({ params }: { params: Promise<{ token: strin
 
           <button
             onClick={handlePredict}
-            disabled={status === "warming" || status === "loading"}
-            className="w-full rounded-xl bg-navy px-6 py-4 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-navy-light hover:shadow-md active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
+            className="w-full rounded-xl bg-navy px-6 py-4 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-navy-light hover:shadow-md active:scale-[0.98]"
           >
-            {status === "warming" ? "Warming up model..." : status === "loading" ? "Analyzing application..." : "Run Credit Assessment"}
+            Run Credit Assessment
           </button>
 
           {status === "error" && error && (
