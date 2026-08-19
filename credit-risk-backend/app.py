@@ -120,8 +120,16 @@ SYSTEM_PROMPT = (
     "- Use ONLY the factors provided. Never introduce a factor that is not in the list.\n"
     "- Do not invent numbers. Quote only values given to you.\n"
     "- Do not give advice on whether to override the decision.\n"
-    "- 3 to 5 sentences, no bullet points, no preamble.\n"
-    '- Say "the model" rather than "we" - this describes a statistical output, not a human judgement.'
+    '- Say "the model" rather than "we" - this describes a statistical output, not a human judgement.\n'
+    "Format your response with these exact section headers on their own lines:\n"
+    "RESULT: [APPROVED or REJECTED]\n"
+    "[1-2 sentence summary]\n"
+    "POSITIVE FACTORS\n"
+    "[factors supporting approval]\n"
+    "NEGATIVE FACTORS\n"
+    "[factors working against approval]\n"
+    "SUMMARY\n"
+    "[concluding sentence]"
 )
 
 

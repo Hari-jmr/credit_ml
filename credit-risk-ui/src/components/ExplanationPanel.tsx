@@ -43,8 +43,8 @@ export function ExplanationPanel({ explanation, modelName }: { explanation: stri
             );
           }
           
-          // Section headers (all caps, no colons, longer text)
-          if (trimmed === trimmed.toUpperCase() && trimmed.length > 10 && !trimmed.includes(":") && !trimmed.includes("|")) {
+          // Section headers (POSITIVE FACTORS, NEGATIVE FACTORS, SUMMARY)
+          if ((trimmed.startsWith("POSITIVE FACTORS") || trimmed.startsWith("NEGATIVE FACTORS") || trimmed === "SUMMARY") && trimmed.length > 5) {
             return (
               <h4 key={i} className="mt-5 mb-2 border-b border-navy/20 pb-1 font-bold text-navy uppercase tracking-wide">
                 {trimmed}
@@ -61,7 +61,7 @@ export function ExplanationPanel({ explanation, modelName }: { explanation: stri
             );
           }
           
-          // Factor lines with + or -
+          // Factor lines with + or - (may have leading spaces)
           if (trimmed.startsWith("+ ") || trimmed.startsWith("- ")) {
             const isPositive = trimmed.startsWith("+");
             return (
