@@ -173,8 +173,6 @@ export default function ResultPage() {
                     value = raw ? "Secured" : "Unsecured";
                   } else if (typeof raw === "boolean") {
                     value = raw ? "Yes" : "No";
-                  } else if (numeric && typeof raw === "number") {
-                    value = `${raw.toLocaleString()}${suffix ?? ""}`;
                   } else {
                     value = `${raw}${suffix ?? ""}`;
                   }
@@ -186,7 +184,7 @@ export default function ResultPage() {
                       }`}
                     >
                       <dt className="text-text-muted">{label}</dt>
-                      <dd className={`font-mono font-medium ${numeric ? "text-accent amount-ui-field" : "text-text"}`}>{value}</dd>
+                      <dd className={`font-mono font-medium ${numeric ? "text-accent tabular-nums" : "text-text"}`}>{value}</dd>
                     </div>
                   );
                 })}

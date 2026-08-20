@@ -58,7 +58,7 @@ export function NumberField({ label, hint, value, onChange, step = 1, min, suffi
               onChange(isNaN(parsed) ? null : parsed);
             }
           }}
-          className={`${inputBase} ${suffix ? "pr-16" : ""} amount-ui-field`}
+          className={`${inputBase} ${suffix ? "pr-20" : ""}`}
           placeholder="0"
         />
         {suffix && (
