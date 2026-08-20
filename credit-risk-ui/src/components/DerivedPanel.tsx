@@ -40,7 +40,7 @@ export function DerivedPanel({ derived }: { derived: DerivedFeatures }) {
           </div>
         ))}
       </dl>
-      <p className="-mx-6 -mb-6 mt-4 border-t border-border bg-surface-2/60 px-6 py-3 text-[11px] leading-relaxed text-text-dim max-sm:-mx-4 max-sm:px-4">
+      <p className="-mx-6 -mb-6 mt-4 border-t border-border bg-surface-2 px-6 py-3 text-[11px] leading-relaxed text-text-muted max-sm:-mx-4 max-sm:px-4">
         Auto-computed from form fields. These values feed the model &mdash; not entered directly.
       </p>
     </div>
