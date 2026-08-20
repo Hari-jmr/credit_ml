@@ -23,15 +23,15 @@ function useSessionStorageValue(key: string): string | null {
   );
 }
 
-const SUMMARY_FIELDS: { key: keyof ApplicationPayload; label: string; suffix?: string }[] = [
-  { key: "LOAN_AMOUNT", label: "Loan Amount" },
+const SUMMARY_FIELDS: { key: keyof ApplicationPayload; label: string; suffix?: string; numeric?: boolean }[] = [
+  { key: "LOAN_AMOUNT", label: "Loan Amount", numeric: true },
   { key: "loan_purpose", label: "Purpose" },
-  { key: "TENURE", label: "Tenure", suffix: "mo" },
-  { key: "INTEREST_RATE", label: "Interest Rate", suffix: "%" },
-  { key: "KSCORE", label: "Credit Bureau Score" },
+  { key: "TENURE", label: "Tenure", suffix: "mo", numeric: true },
+  { key: "INTEREST_RATE", label: "Interest Rate", suffix: "%", numeric: true },
+  { key: "KSCORE", label: "Credit Bureau Score", numeric: true },
   { key: "RISK_GRADE", label: "Risk Grade" },
-  { key: "DSR", label: "DSR", suffix: "%" },
-  { key: "UMI", label: "Monthly Income (UMI)" },
+  { key: "DSR", label: "DSR", suffix: "%", numeric: true },
+  { key: "UMI", label: "Monthly Income (UMI)", numeric: true },
   { key: "IS_SECURED", label: "Collateral" },
 ];
 
@@ -166,13 +166,15 @@ export default function ResultPage() {
                 <h2 className="text-sm font-semibold text-text">Application Summary</h2>
               </div>
               <dl className="-mx-6 -mb-6 max-sm:-mx-4 max-sm:-mb-4">
-                {SUMMARY_FIELDS.map(({ key, label, suffix }, i) => {
+                {SUMMARY_FIELDS.map(({ key, label, suffix, numeric }, i) => {
                   const raw = application[key];
                   let value: string;
                   if (key === "IS_SECURED") {
                     value = raw ? "Secured" : "Unsecured";
                   } else if (typeof raw === "boolean") {
                     value = raw ? "Yes" : "No";
+                  } else if (numeric && typeof raw === "number") {
+                    value = `${raw.toLocaleString()}${suffix ?? ""}`;
                   } else {
                     value = `${raw}${suffix ?? ""}`;
                   }
@@ -184,7 +186,7 @@ export default function ResultPage() {
                       }`}
                     >
                       <dt className="text-text-muted">{label}</dt>
-                      <dd className="font-mono font-medium text-accent">{value}</dd>
+                      <dd className={`font-mono font-medium ${numeric ? "text-accent amount-ui-field" : "text-text"}`}>{value}</dd>
                     </div>
                   );
                 })}
