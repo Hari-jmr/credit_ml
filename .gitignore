@@ -15,8 +15,8 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Backend
-credit-risk-backend/model_outputs/
+# Backend cache
+credit-risk-backend/__pycache__/
 
 # Generated PDFs
 *.pdf

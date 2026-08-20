@@ -1,0 +1,47 @@
+{
+  "LightGBM": {
+    "learning_rate": 0.011926324174062874,
+    "num_leaves": 243,
+    "max_depth": 12,
+    "min_child_samples": 164,
+    "subsample": 0.7218455076693483,
+    "colsample_bytree": 0.6390688456025535,
+    "reg_alpha": 0.5456725485601477,
+    "reg_lambda": 0.057624872164786026,
+    "objective": "binary",
+    "metric": "auc",
+    "is_unbalance": true,
+    "seed": 42,
+    "verbosity": -1
+  },
+  "CatBoost": {
+    "learning_rate": 0.05694405570768781,
+    "depth": 7,
+    "l2_leaf_reg": 8.55158663685265,
+    "random_strength": 0.2226434168176692,
+    "bagging_temperature": 0.10936900035649155,
+    "loss_function": "Logloss",
+    "eval_metric": "AUC",
+    "auto_class_weights": "Balanced",
+    "random_seed": 42,
+    "verbose": false,
+    "boosting_type": "Plain",
+    "thread_count": -1
+  },
+  "XGBoost": {
+    "learning_rate": 0.032413496538113075,
+    "max_depth": 7,
+    "min_child_weight": 1,
+    "subsample": 0.6972194794461505,
+    "colsample_bytree": 0.8961652236784986,
+    "reg_alpha": 2.283666812122371,
+    "reg_lambda": 0.04728862287148074,
+    "objective": "binary:logistic",
+    "eval_metric": "auc",
+    "tree_method": "hist",
+    "enable_categorical": true,
+    "scale_pos_weight": 0.15116298912950732,
+    "seed": 42,
+    "n_jobs": -1
+  }
+}

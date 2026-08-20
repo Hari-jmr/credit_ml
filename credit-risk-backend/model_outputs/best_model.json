@@ -1,0 +1,7 @@
+{
+  "best_model": "CatBoost",
+  "source_file": "cb_model.pkl",
+  "test_roc_auc": 0.7309934775865078,
+  "cost_optimal_threshold_lightgbm": 0.49999999999999994,
+  "note": "cost_optimal_threshold was derived for the LightGBM candidate in Section 9. If the winner is not LightGBM, re-derive the threshold for that model before use."
+}

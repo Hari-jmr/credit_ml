@@ -1,56 +1,40 @@
-# Credit Risk — Underwriting Desk
+# Credit Risk Assessment Application
 
-Enterprise-grade AI-powered credit risk assessment dashboard. Fill in an application, get an
+Enterprise-grade AI-powered credit risk assessment dashboard. Fill in a loan application, get an
 APPROVED/REJECTED decision with SHAP-driven factor analysis and a plain-language explanation
 (IBM Granite 4.1 3B, running locally through Ollama).
 
 ```
 credit-risk-ui/        Next.js frontend (application form + decision dashboard)
-credit-risk-backend/   FastAPI backend (model inference, SHAP, LLM explanation)
+credit-risk-backend/   FastAPI backend (CatBoost inference, SHAP, LLM explanation)
 ```
 
-## Why two parts
+## Why Two Services
 
-The trained model (`best_model.pkl`) is a Python object — LightGBM, CatBoost, or XGBoost, saved
-via joblib. Next.js can't load that directly, so a local API bridges the UI and the model. Both
-run on your machine; nothing leaves it.
+The trained model (`best_model.pkl`) is a Python CatBoost object saved via joblib. Next.js (Node.js)
+cannot load Python pickle files, so a FastAPI backend bridges the UI and the model. Both services
+run locally — no data leaves the machine.
 
-## Setup
+## Quick Start
 
 ### 1. Prerequisites
 
-- **Python 3.12** (recommended; Python 3.13 has dependency compatibility gaps with shap/numba)
+- **Python 3.12** (recommended; 3.10–3.13 supported)
 - **Node.js 20+**
-- **Ollama** installed and running
 - **[uv](https://docs.astral.sh/uv/)** — Python package manager
+- **Ollama** (optional, only if `USE_LLM=true`)
 
-### 2. Model artifacts
-
-Run `credit_risk_ML_v3.ipynb` first — it produces `model_outputs/`. Copy that folder into the
-backend directory:
-
-```bash
-cp -r /path/to/model_outputs credit-risk-backend/
-```
-
-### 3. Ollama
-
-```bash
-ollama pull granite4.1:3b
-ollama list  # verify it's available
-```
-
-### 4. Backend
+### 2. Backend
 
 ```bash
 cd credit-risk-backend
 uv sync
-uv run serve
+uv run uvicorn app:app --host 0.0.0.0 --port 5230
 ```
 
-Verify: `curl http://localhost:8000/health` should return the model name and test AUC.
+Verify: `curl http://localhost:5230/health` returns model name and test AUC.
 
-### 5. Frontend (separate terminal)
+### 3. Frontend (separate terminal)
 
 ```bash
 cd credit-risk-ui
@@ -58,41 +42,93 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:3000**.
+Open **http://localhost:3535**.
+
+### 4. Docker (alternative)
+
+```bash
+docker compose up --build -d
+```
+
+- Frontend: http://localhost:3535
+- Backend: http://localhost:5230
+
+## Model Artifacts
+
+The `credit-risk-backend/model_outputs/` directory contains pre-trained model files committed to
+this repository. No external notebook is required to run the app.
+
+| File | Purpose |
+|---|---|
+| `best_model.pkl` | Production CatBoost model (ROC-AUC 0.7310) |
+| `preprocessing_meta.json` | Feature columns, winsorize caps, categorical mappings |
+| `model_comparison.csv` | CatBoost vs XGBoost vs LightGBM performance |
+| `best_model.json` | Winning model metadata |
+| `*_model.pkl`, `*_study.pkl`, `*_predictions.csv` | Full training artifacts for all 3 models |
 
 ## Features
 
-### Application Form
-- Three sections: Loan Details, Credit Profile, Employment
-- Derived features panel updates in real time as you type
-- Inputs include currency, percentages, selectable grades, and categorical fields
+### Application Form (`/`)
+- Three sections: Loan Details, Credit Profile, Employment (26 fields total)
+- Derived features panel updates live as you type (8 ratios and ordinal mappings)
+- Light/dark theme toggle with cookie persistence
 
-### Decision Dashboard
-After submitting, the result page shows:
+### Decision Dashboard (`/result`)
+After submission, the result page shows:
 
-- **Decision card** — large APPROVED or REJECTED badge with confidence level
-- **Probability gauge** — animated progress bar with red/orange/green color zones and threshold marker
-- **Application summary** — key fields in a structured data table
-- **Top 10 SHAP factors** — diverging contribution bars showing which features pushed the model toward approval or rejection, with percentage coverage
-- **AI explanation** — Granite 4.1 3B writes a plain-language assessment rationale from the SHAP table
-- **Improvement recommendations** — actionable suggestions to strengthen the application
-- **Download PDF** — print-optimized export of the full decision report
-- **Back** and **New Application** navigation
+- **Decision stamp** — large APPROVED or REJECTED badge
+- **Probability gauge** — color-zoned progress bar with threshold marker
+- **Application summary** — key fields in a structured table
+- **Top SHAP factors** — diverging bars showing which features pushed toward approval or rejection
+- **AI explanation** — plain-language assessment rationale (template-based by default)
+- **Recommendations** — actionable suggestions to improve approval chances
+- **Download PDF** — print-optimized export of the full report
 
-## Config
+## Configuration
+
+### Backend (`credit-risk-backend/.env`)
 
 | Variable | Default | Description |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Backend URL (frontend) |
-| `MODEL_DIR` | `model_outputs` | Path to model artifacts (backend) |
-| `OLLAMA_MODEL` | `granite4.1:3b` | Ollama model name (backend) |
+| `API_PORT` | 5230 | Backend listening port |
+| `MODEL_DIR` | model_outputs | Path to model artifacts |
+| `OLLAMA_MODEL` | granite4.1:3b | Ollama model for LLM explanations |
+| `ALLOWED_ORIGINS` | http://localhost:3535 | CORS allowed origins |
+| `USE_LLM` | false | Enable Ollama LLM explanations |
+
+### Frontend (`credit-risk-ui/.env.local`)
+
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | 3535 | Frontend listening port |
+| `NEXT_PUBLIC_API_URL` | http://localhost:5230 | Backend API URL |
+
+## ML Model Details
+
+| Model | ROC-AUC | Gini | F1 | Precision | Recall |
+|---|---|---|---|---|---|
+| **CatBoost** (production) | **0.7310** | 0.4620 | 0.8055 | 0.9268 | 0.7123 |
+| XGBoost | 0.7293 | 0.4587 | 0.8153 | 0.9251 | 0.7288 |
+| LightGBM | 0.7283 | 0.4567 | 0.8351 | 0.9218 | 0.7633 |
+
+- **30 total features**: 22 raw + 8 derived
+- **5 categorical features** encoded natively by CatBoost
+- **Decision threshold**: 0.5 (tuned for 5:1 false-accept vs false-decline cost ratio)
+
+## API Endpoints
+
+| Method | Route | Purpose |
+|---|---|---|
+| GET | `/health` | Model status, ROC-AUC, threshold |
+| GET | `/schema` | Field metadata (tenure buckets, risk grades, winsorize caps) |
+| POST | `/predict` | Main prediction: returns decision, probability, SHAP drivers, explanation |
 
 ## Notes
 
-- **Threshold**: tuned assuming false-accept costs 5× a false-decline. If a non-LightGBM model won
-  the comparison, falls back to 0.5.
 - **Risk grade isn't monotonic** — AA historically approves at lower rates than BB/CC/DD. Don't
   read the grade as a simple ranking.
 - **Not adverse-action reasons** — the explanation describes what the model weighted, not a
   compliant regulatory disclosure. Keep a human in the loop and route through compliance before
   customer-facing use.
+- **30-second request timeout** — the frontend fails fast if the backend doesn't respond, rather
+  than hanging indefinitely.
