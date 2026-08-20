@@ -1,4 +1,16 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5230";
+const REQUEST_TIMEOUT = 30_000;
+
+async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 export interface ApplicationPayload {
   LOAN_AMOUNT: number;
@@ -59,12 +71,12 @@ export class ApiError extends Error {
   }
 }
 
-export async function predict(application: ApplicationPayload, retries = 3): Promise<PredictResponse> {
+export async function predict(application: ApplicationPayload, retries = 1): Promise<PredictResponse> {
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const res = await fetch(`${API_URL}/predict`, {
+      const res = await fetchWithTimeout(`${API_URL}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(application),
@@ -84,9 +96,14 @@ export async function predict(application: ApplicationPayload, retries = 3): Pro
       return res.json();
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
+      if (err instanceof DOMException && err.name === "AbortError") {
+        throw new ApiError(`Request timed out after ${REQUEST_TIMEOUT / 1000}s. The prediction service may be overloaded.`, 504);
+      }
+      if (err instanceof TypeError && err.message.includes("fetch")) {
+        throw new ApiError(`Cannot connect to ${API_URL}. Is the backend running?`, 0);
+      }
       if (attempt < retries) {
-        const delay = 1000 * Math.pow(2, attempt);
-        await new Promise((r) => setTimeout(r, delay));
+        await new Promise((r) => setTimeout(r, 1000));
       }
     }
   }
@@ -104,7 +121,7 @@ export interface HealthResponse {
 }
 
 export async function checkHealth(): Promise<HealthResponse> {
-  const res = await fetch(`${API_URL}/health`);
+  const res = await fetchWithTimeout(`${API_URL}/health`);
   if (!res.ok) throw new ApiError("API is not reachable", res.status);
   return res.json();
 }
