@@ -9,7 +9,7 @@ import { ProbabilityGauge } from "@/components/ProbabilityGauge";
 import { ExplanationPanel } from "@/components/ExplanationPanel";
 import { RecommendationsCard } from "@/components/RecommendationsCard";
 import { PredictResponse, ApplicationPayload } from "@/lib/api";
-import { RESULT_STORAGE_KEY, APPLICATION_STORAGE_KEY, RETURN_URL_KEY } from "@/lib/resultStorage";
+import { RESULT_STORAGE_KEY, APPLICATION_STORAGE_KEY } from "@/lib/resultStorage";
 
 function noopSubscribe() {
   return () => {};
@@ -44,7 +44,6 @@ interface ResultPageState {
 export default function ResultPage() {
   const resultRaw = useSessionStorageValue(RESULT_STORAGE_KEY);
   const applicationRaw = useSessionStorageValue(APPLICATION_STORAGE_KEY);
-  const returnUrlRaw = useSessionStorageValue(RETURN_URL_KEY);
 
   const { status, result, application }: ResultPageState = useMemo(() => {
     if (!resultRaw) return { status: "missing", result: null, application: null };
@@ -58,15 +57,6 @@ export default function ResultPage() {
       return { status: "missing", result: null, application: null };
     }
   }, [resultRaw, applicationRaw]);
-
-  const returnUrl = useMemo(() => {
-    if (!returnUrlRaw) return null;
-    try {
-      return JSON.parse(returnUrlRaw) as string;
-    } catch {
-      return returnUrlRaw;
-    }
-  }, [returnUrlRaw]);
 
   const handlePrint = useCallback(() => {
     window.print();
@@ -100,14 +90,6 @@ export default function ResultPage() {
           <p className="mt-1.5 text-sm text-text-muted">Detailed breakdown of the credit risk assessment</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {returnUrl && (
-            <a
-              href={returnUrl}
-              className="btn btn-secondary inline-flex items-center gap-1.5"
-            >
-              Back to Profitoo
-            </a>
-          )}
           <Link
             href="/"
             className="btn btn-secondary inline-flex items-center gap-1.5"

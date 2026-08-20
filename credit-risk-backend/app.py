@@ -15,9 +15,8 @@ Requires model_outputs/ (from credit_risk_ML_v3.ipynb) in the same directory as 
 import json
 import os
 import re
-import uuid
 import warnings
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, Union
 
 import joblib
@@ -348,9 +347,6 @@ def explain_with_llm(decision: str, prob: float, drivers: pd.DataFrame) -> str:
     return resp["message"]["content"].strip()
 
 
-SESSIONS: dict[str, dict] = {}
-SESSION_TTL = timedelta(hours=2)
-
 # ---------------------------------------------------------------------------------------------
 # API schema
 # ---------------------------------------------------------------------------------------------
@@ -384,15 +380,6 @@ class Application(BaseModel):
     emp_contract_type: str
     eligibility: Optional[str] = None
     PRIORITY: Optional[str] = None
-
-
-class SessionRequest(BaseModel):
-    returnUrl: str
-    application: Optional[Application] = None
-
-class SessionResponse(BaseModel):
-    token: str
-    url: str
 
 
 class Driver(BaseModel):
@@ -449,31 +436,6 @@ def schema():
         "risk_grades": list(RISK_GRADE_MAP.keys()),
         "winsorize_caps": WINSORIZE_CAPS,
     }
-
-
-@app.post("/predict/session", response_model=SessionResponse)
-def create_session(req: SessionRequest):
-    """Create a session token for cross-app redirect. Profitoo calls this to get a URL."""
-    token = str(uuid.uuid4())
-    SESSIONS[token] = {
-        "application": req.application.model_dump() if req.application else None,
-        "returnUrl": req.returnUrl,
-        "createdAt": datetime.now().isoformat(),
-    }
-    base_ui = os.environ.get("UI_BASE_URL", "http://localhost:3000")
-    return SessionResponse(token=token, url=f"{base_ui}/predict/{token}")
-
-
-@app.get("/predict/session/{token}")
-def get_session(token: str):
-    """Retrieve and consume a session token (one-time use)."""
-    session = SESSIONS.pop(token, None)
-    if not session:
-        raise HTTPException(status_code=404, detail="Session not found or expired")
-    created = datetime.fromisoformat(session["createdAt"])
-    if datetime.now() - created > SESSION_TTL:
-        raise HTTPException(status_code=410, detail="Session expired")
-    return session
 
 
 @app.post("/predict", response_model=PredictResponse)
