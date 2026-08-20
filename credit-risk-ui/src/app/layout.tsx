@@ -1,28 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import localFont from "next/font/local";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const plexMono = localFont({
-  variable: "--font-plex-mono",
-  display: "swap",
-  src: [
-    { path: "../fonts/IBMPlexMono-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../fonts/IBMPlexMono-Medium.woff2", weight: "500", style: "normal" },
-    { path: "../fonts/IBMPlexMono-SemiBold.woff2", weight: "600", style: "normal" },
-  ],
-});
 
 export const metadata: Metadata = {
   title: "AI & ML Credit Approval Predictor",
   description: "Enterprise credit risk assessment dashboard.",
 };
+
+const themeScript = `
+(function(){try{var c=document.cookie.match(/(?:^|;)\\s*l2lTheme=([^;]*)/);if(c){document.documentElement.setAttribute('data-theme',c[1])}}catch(e){}})();
+`;
 
 export default function RootLayout({
   children,
@@ -30,8 +17,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${plexMono.variable}`}>
-      <body className="antialiased">{children}</body>
+    <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="antialiased">
+        <div className="min-h-screen bg-bg">
+          <header className="sticky top-0 z-50 border-b border-border bg-surface/80 backdrop-blur-sm">
+            <div className="page-container flex items-center justify-between h-12">
+              <h1 className="text-sm font-semibold text-text">Credit Risk Predictor</h1>
+              <ThemeToggle />
+            </div>
+          </header>
+          <main>{children}</main>
+        </div>
+      </body>
     </html>
   );
 }

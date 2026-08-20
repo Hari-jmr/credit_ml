@@ -25,8 +25,8 @@ function Bar({
 }) {
   const halfWidthPct = Math.round((Math.abs(shapValue) / maxAbs) * 50);
   const isPositive = shapValue >= 0;
-  const barColor = isPositive ? "var(--success)" : "var(--error)";
-  const barBg = isPositive ? "var(--success-light)" : "var(--error-light)";
+  const barColor = isPositive ? "var(--l2l-success)" : "var(--l2l-crit)";
+  const barBg = isPositive ? "var(--l2l-success-light)" : "var(--l2l-crit-bg)";
 
   return (
     <div className={`flex flex-col gap-1.5 ${muted ? "opacity-60" : ""}`}>

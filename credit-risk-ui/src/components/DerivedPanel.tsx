@@ -15,10 +15,10 @@ export function DerivedPanel({ derived }: { derived: DerivedFeatures }) {
   return (
     <div className="overflow-hidden card-base">
       <div className="-mx-6 -mt-6 mb-6 flex items-center gap-3 border-b border-border bg-surface-2 px-6 py-3.5 max-sm:-mx-4 max-sm:-mt-4 max-sm:mb-4 max-sm:px-4 max-sm:py-3">
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent-blue-light text-accent-blue text-xs font-bold">
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent-weak text-accent text-xs font-bold">
           fx
         </span>
-        <h2 className="text-[15px] font-semibold text-navy sm:text-base">Derived Features</h2>
+        <h2 className="text-[13px] font-bold text-text uppercase tracking-[0.04em] sm:text-[13px]">Derived Features</h2>
         <span className="ml-auto font-mono text-xs text-text-dim">
           {filledCount}/{entries.length}
         </span>
@@ -32,7 +32,7 @@ export function DerivedPanel({ derived }: { derived: DerivedFeatures }) {
             <dt className="text-[13px] text-text-muted">{DERIVED_LABELS[key]}</dt>
             <dd
               className={`font-mono text-sm tabular-nums ${
-                value === null ? "text-text-dim" : "font-medium text-accent-blue"
+                value === null ? "text-text-dim" : "font-medium text-accent"
               }`}
             >
               {formatValue(key, value)}

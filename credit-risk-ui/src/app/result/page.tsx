@@ -81,7 +81,7 @@ export default function ResultPage() {
         </p>
         <Link
           href="/"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-navy-light hover:shadow-lg"
+          className="btn btn-primary inline-flex items-center gap-1.5 mt-6"
         >
           <ArrowLeftIcon className="h-4 w-4" />
           Go to application form
@@ -94,38 +94,37 @@ export default function ResultPage() {
 
   return (
     <div className="page-container py-8 sm:py-12 lg:py-14 animate-fade-in">
-      {/* Header */}
       <header className="no-print mb-8 flex flex-col items-start justify-between gap-4 pb-6 sm:flex-row sm:items-center lg:mb-10 lg:pb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-navy sm:text-3xl">Decision</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">Decision</h1>
           <p className="mt-1.5 text-sm text-text-muted">Detailed breakdown of the credit risk assessment</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {returnUrl && (
             <a
               href={returnUrl}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-text-muted shadow-sm transition-all hover:border-border-strong hover:text-text min-h-[44px]"
+              className="btn btn-secondary inline-flex items-center gap-1.5"
             >
               Back to Profitoo
             </a>
           )}
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-text-muted shadow-sm transition-all hover:border-border-strong hover:text-text min-h-[44px]"
+            className="btn btn-secondary inline-flex items-center gap-1.5"
           >
             <ArrowLeftIcon className="h-4 w-4" />
             Back
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-navy px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-navy-light min-h-[44px]"
+            className="btn btn-primary inline-flex items-center gap-1.5"
           >
             <PlusIcon className="h-4 w-4" />
             New Application
           </Link>
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-navy shadow-sm transition-all hover:bg-surface-2 min-h-[44px]"
+            className="btn btn-secondary inline-flex items-center gap-1.5"
           >
             <DocumentArrowDownIcon className="h-4 w-4" />
             Download PDF
@@ -134,10 +133,8 @@ export default function ResultPage() {
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[35%_65%] lg:gap-8">
-        {/* ---- Left column ---- */}
         <div className="flex flex-col gap-6 md:sticky md:top-8 md:self-start lg:top-12">
 
-          {/* Decision Card */}
           <div className="card-base">
             <DecisionStamp decision={result.decision} probability={result.probability} />
             <div className="my-5 h-px bg-border" />
@@ -163,7 +160,6 @@ export default function ResultPage() {
             </div>
           </div>
 
-          {/* Application Summary */}
           {application && (
             <div className="overflow-hidden card-base">
               <div className="-mx-6 -mt-6 mb-6 border-b border-border bg-surface-2 px-6 py-3.5 max-sm:-mx-4 max-sm:-mt-4 max-sm:mb-4 max-sm:px-4 max-sm:py-3">
@@ -188,7 +184,7 @@ export default function ResultPage() {
                       }`}
                     >
                       <dt className="text-text-muted">{label}</dt>
-                      <dd className="font-mono font-medium text-navy">{value}</dd>
+                      <dd className="font-mono font-medium text-accent">{value}</dd>
                     </div>
                   );
                 })}
@@ -197,12 +193,10 @@ export default function ResultPage() {
           )}
         </div>
 
-        {/* ---- Right column ---- */}
         <div className="flex flex-col gap-6 lg:gap-8">
 
-          {/* SHAP Factors - stretches to fill */}
           <div className="card-base lg:flex-1 lg:flex lg:flex-col">
-            <h2 className="mb-1 text-lg font-bold text-navy">Top Factors Affecting the Decision</h2>
+            <h2 className="mb-1 text-lg font-bold text-text">Top Factors Affecting the Decision</h2>
             <p className="mb-5 text-[13px] text-text-muted">
               These features contributed the most to the model&apos;s prediction.
             </p>
@@ -216,10 +210,8 @@ export default function ResultPage() {
             </div>
           </div>
 
-          {/* AI Explanation */}
           <ExplanationPanel explanation={result.explanation} modelName="Granite 4.1 3B" />
 
-          {/* Recommendations */}
           <RecommendationsCard />
         </div>
       </div>

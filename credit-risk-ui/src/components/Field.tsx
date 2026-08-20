@@ -20,11 +20,9 @@ function ChevronDown() {
 }
 
 const inputBase =
-  "w-full rounded-lg border border-border bg-white px-3.5 py-2.5 text-[14px] " +
-  "text-text placeholder:text-text-dim/40 transition-all duration-150 " +
-  "shadow-[0_1px_2px_rgba(0,0,0,0.03)] " +
+  "w-full text-[13.5px] text-text placeholder:text-text-dim/50 " +
   "hover:border-border-strong " +
-  "focus:border-accent-blue focus:shadow-[0_0_0_3px_rgba(37,99,235,0.10)] focus:outline-none";
+  "focus:border-accent focus:outline-none";
 
 const labelBase = "text-[12.5px] font-semibold text-text";
 
@@ -39,9 +37,8 @@ interface NumberFieldProps {
 }
 
 export function NumberField({ label, hint, value, onChange, step = 1, min, suffix }: NumberFieldProps) {
-  // Ensure value is always a proper number without leading zeros
   const displayValue = value !== null && value !== undefined ? String(value) : "";
-  
+
   return (
     <label className="flex flex-col gap-1.5">
       <span className={labelBase}>{label}</span>
@@ -61,7 +58,7 @@ export function NumberField({ label, hint, value, onChange, step = 1, min, suffi
               onChange(isNaN(parsed) ? null : parsed);
             }
           }}
-          className={`${inputBase} ${suffix ? "pr-16" : ""}`}
+          className={`${inputBase} ${suffix ? "pr-16" : ""} amount-ui-field`}
           placeholder="0"
         />
         {suffix && (
@@ -91,10 +88,10 @@ export function SelectField({ label, hint, value, onChange, options }: SelectFie
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`${inputBase} appearance-none pr-9`}
+          className={inputBase}
         >
           {options.map((o) => (
-            <option key={o.value} value={o.value} className="bg-white">
+            <option key={o.value} value={o.value} className="bg-surface">
               {o.label}
             </option>
           ))}

@@ -12,8 +12,8 @@ export function RecommendationsCard() {
   return (
     <div className="card-base card-hover animate-fade-in">
       <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold-light">
-          <LightBulbIcon className="h-5 w-5 text-gold-dark" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-warning-light">
+          <LightBulbIcon className="h-5 w-5 text-warning" />
         </div>
         <h3 className="text-[15px] font-semibold text-text">
           Recommendations to improve approval chances

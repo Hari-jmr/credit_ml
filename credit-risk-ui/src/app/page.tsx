@@ -106,21 +106,20 @@ export default function Home() {
     <div className="page-container py-8 sm:py-12 lg:py-14 animate-fade-in">
       <header className="mb-8 flex flex-col items-start justify-between gap-4 pb-6 sm:flex-row sm:items-center lg:mb-10">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-navy sm:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
             AI &amp; ML Credit Approval Predictor
           </h1>
           <p className="mt-1 text-sm text-text-muted">
             Enter application details for an instant credit risk assessment.
           </p>
         </div>
-        <span className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 font-mono text-xs tracking-wide text-text-dim">
+        <span className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 font-mono text-xs tracking-wide text-text-muted">
           <span className="h-1.5 w-1.5 rounded-full bg-success" />
           System Active
         </span>
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[70%_30%] lg:gap-8">
-        {/* Left: form */}
         <div className="flex flex-col gap-6">
           <FormSection number="01" title="Loan Details">
             <NumberField label="Loan amount" value={form.LOAN_AMOUNT} onChange={setNum("LOAN_AMOUNT")} step={100} />
@@ -192,14 +191,13 @@ export default function Home() {
           </FormSection>
         </div>
 
-        {/* Right: derived + predict */}
         <div className="flex flex-col gap-6 lg:sticky lg:top-12 lg:self-start">
           <DerivedPanel derived={derived} />
 
           <button
             onClick={handlePredict}
             disabled={status === "warming" || status === "loading"}
-            className="w-full rounded-xl bg-navy px-6 py-4 text-[15px] font-bold text-white shadow-sm transition-all hover:bg-navy-light hover:shadow-md active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
+            className="btn btn-primary w-full text-[13px] font-semibold disabled:cursor-wait disabled:opacity-60"
           >
             {status === "warming" ? "Warming up model..." : status === "loading" ? "Analyzing application..." : "Run Credit Assessment"}
           </button>

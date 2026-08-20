@@ -10,15 +10,14 @@ export function DecisionStamp({
   probability: number;
 }) {
   const isApprove = decision === "APPROVED";
-  const pct = Math.round(probability * 100);
 
   return (
     <div className="flex flex-col items-center gap-2 animate-fade-in">
       <div
         className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-bold ${
           isApprove
-            ? "bg-success-dim text-green-900 border border-success"
-            : "bg-error-dim text-red-900 border border-error"
+            ? "bg-success-dim text-success border border-success"
+            : "bg-error-dim text-error border border-error"
         }`}
       >
         {isApprove ? (

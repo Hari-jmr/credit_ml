@@ -1,9 +1,9 @@
 "use client";
 
 function getZoneColor(pct: number): string {
-  if (pct < 40) return "var(--error)";
-  if (pct < 70) return "var(--warning)";
-  return "var(--success)";
+  if (pct < 40) return "var(--l2l-crit)";
+  if (pct < 70) return "var(--l2l-warning)";
+  return "var(--l2l-success)";
 }
 
 export function ProbabilityGauge({
@@ -30,9 +30,9 @@ export function ProbabilityGauge({
         className="relative h-4 w-full overflow-hidden rounded-full"
         style={{
           background: `linear-gradient(to right,
-            var(--error-light) 0%, var(--error-light) 40%,
-            var(--warning-light) 40%, var(--warning-light) 70%,
-            var(--success-light) 70%, var(--success-light) 100%)`,
+            var(--l2l-crit-bg) 0%, var(--l2l-crit-bg) 40%,
+            var(--l2l-warning-light) 40%, var(--l2l-warning-light) 70%,
+            var(--l2l-success-light) 70%, var(--l2l-success-light) 100%)`,
         }}
       >
         <div
@@ -40,7 +40,7 @@ export function ProbabilityGauge({
           style={{ width: `${pct}%`, backgroundColor: barColor }}
         />
         <div
-          className="absolute inset-y-0 w-0.5 bg-navy"
+          className="absolute inset-y-0 w-0.5 bg-text"
           style={{ left: `${thresholdPct}%`, zIndex: 2 }}
         />
       </div>
