@@ -162,10 +162,10 @@ export default function ResultPage() {
 
           {application && (
             <div className="overflow-hidden card-base">
-              <div className="-mx-6 -mt-6 mb-6 border-b border-border bg-surface-2 px-6 py-3.5 max-sm:-mx-4 max-sm:-mt-4 max-sm:mb-4 max-sm:px-4 max-sm:py-3">
+              <div className="-mx-6 -mt-6 mb-4 border-b border-border bg-surface-2 px-6 py-3.5 max-sm:-mx-4 max-sm:-mt-4 max-sm:mb-4 max-sm:px-4 max-sm:py-3">
                 <h2 className="text-sm font-semibold text-text">Application Summary</h2>
               </div>
-              <dl className="-mx-6 -mb-6 max-sm:-mx-4 max-sm:-mb-4">
+              <dl className="-mx-6 -mb-6 pb-2 max-sm:-mx-4 max-sm:-mb-4 max-sm:pb-2">
                 {SUMMARY_FIELDS.map(({ key, label, suffix, numeric }, i) => {
                   const raw = application[key];
                   let value: string;
@@ -180,7 +180,7 @@ export default function ResultPage() {
                     <div
                       key={key}
                       className={`flex items-center justify-between gap-3 px-6 py-2.5 text-[13px] max-sm:px-4 ${
-                        i % 2 === 0 ? "bg-surface-2/40" : ""
+                        i % 2 === 0 ? "bg-surface-2/50" : "bg-surface"
                       }`}
                     >
                       <dt className="text-text-muted">{label}</dt>
